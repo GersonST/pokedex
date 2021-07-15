@@ -2,86 +2,65 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import Info from "../../pages/Info";
+import "./styles.scss";
 
 export default function PokemonList() {
   const [pokemonArray, setPokemonArray] = useState([]);
   const [pokemonNext, setPokemonNext] = useState("");
   const [pokemonPrevious, setPokemonPrevious] = useState("");
-
-  const getPokemon = async () => {
-    try {
-      const url = "http://pokeapi.co/api/v2/pokemon/";
-      const response = await axios.get(url);
-      console.log(response);
-
-      setPokemonArray(response.data.results);
-      setPokemonNext(response.data.next);
-      setPokemonPrevious(response.data.previous);
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
-  const getPokemonNext = async () => {
-    try {
-      const url = pokemonNext;
-      const response = await axios.get(url);
-
-      setPokemonArray(response.data.results);
-      setPokemonPrevious(response.data.previous);
-      setPokemonNext(response.data.next);
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
-  const getPokemonPrevious = async () => {
-    try {
-      const url = pokemonPrevious;
-      const response = await axios.get(url);
-
-      setPokemonArray(response.data.results);
-      setPokemonPrevious(response.data.previous);
-      setPokemonNext(response.data.next);
-    } catch (e) {
-      console.log(e);
-    }
-  };
+  const [initialUrl, setInitialUrl] = useState(
+    "http://pokeapi.co/api/v2/pokemon/"
+  );
 
   useEffect(() => {
+    const getPokemon = async () => {
+      try {
+        const response = await axios.get(initialUrl);
+        console.log(response);
+        setPokemonArray(response.data.results);
+        setPokemonNext(response.data.next);
+        setPokemonPrevious(response.data.previous);
+      } catch (e) {
+        console.log(e);
+      }
+    };
     getPokemon();
-  }, []);
+  }, [initialUrl]);
 
-  useEffect(() => {
-    console.log(pokemonArray);
-    console.log(pokemonPrevious);
-    console.log(pokemonNext);
-  }, [pokemonArray]);
+  function handlePokemonNext() {
+    setInitialUrl(pokemonNext);
+  }
 
-  const handleNext = () => {
-    getPokemonNext();
-  };
-
-  const handlePrevious = () => {
-    getPokemonPrevious();
-  };
+  function handlePokemonPrevious() {
+    setInitialUrl(pokemonPrevious);
+  }
 
   return (
-    <div>
-      <div>
+    <div className="container">
+      <div className="pokemon-list">
         <ul>
           {pokemonArray.map((poke) => {
-            return (
-              <Link to={Info} key={poke.url}>
-                <li key={poke.url}>{poke.name}</li>
-              </Link>
-            );
+            return <li key={poke.url}>{poke.name}</li>;
           })}
         </ul>
-      </div>
-      <div>
-        <button onClick={() => handlePrevious()}>Voltar</button>
-        <button onClick={() => handleNext()}>Avançar</button>
+        <div>
+          <button
+            className="previous-btn"
+            onClick={() => {
+              handlePokemonPrevious();
+            }}
+          >
+            Voltar
+          </button>
+          <button
+            className="next-btn"
+            onClick={() => {
+              handlePokemonNext();
+            }}
+          >
+            Avançar
+          </button>
+        </div>
       </div>
     </div>
   );
